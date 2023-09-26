@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <tarlib/tarlib.h>
-
+#include <errno.h>
 namespace {
 
 	#define N_ARRAY(x) sizeof(x) / sizeof(*x)

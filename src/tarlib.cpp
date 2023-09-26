@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iterator>
 #include <tarlib/tarlib.h>
-
+#include <cstring>
 namespace {
 #if 0
 	template <unsigned int OFFSET, unsigned int COUNT>
@@ -188,7 +188,8 @@ internal::put( tar_stream& strm, bool continueAfterHeader ) {
 
 				return strm.len_out;
 			} else {
-				const uInt leftPadding = static_cast<decltype(_endPadding)>( _left );
+				//if less available than full padding consume as much as possible
+				const uInt leftPadding = strm.avail_in < _left ? strm.avail_in : static_cast<decltype(_endPadding)>( _left );
 				// Consume the padding but do not generate output
 				strm.len_out    = 0;
 				strm.total_out += leftPadding;

@@ -3,11 +3,10 @@ project( tarlib )
 
 set( tarlib_VERSION_MAJOR 0 )
 set( tarlib_VERSION_MINOR 1 )
-
 add_library( tarlib src/tarlib.cpp )
 include_directories( ${tarlib_SOURCE_DIR}/include )
 list( APPEND CMAKE_CXX_FLAGS -std=c++11 )
 
 add_executable( untar test/test.cpp )
 target_link_libraries( untar tarlib )
-
+target_include_directories( untar PUBLIC ${tarlib_SOURCE_DIR}/include )

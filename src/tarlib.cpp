@@ -4,12 +4,11 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cassert>
-#include <cstring>
 #include <type_traits>
 #include <sstream>
 #include <iterator>
 #include <tarlib/tarlib.h>
-
+#include <cstring>
 namespace {
 #if 0
 	template <unsigned int OFFSET, unsigned int COUNT>
@@ -156,22 +155,18 @@ internal::put( tar_stream& strm, bool continueAfterHeader ) {
 				convert( header );
 				_header.ptr_begin->done = 1;
 			}
-			
-			{
-				//FIXME: Make working without internal header
-				const auto file_bytes = _header.ptr_begin->file_bytes;
-				_endPadding = [&]() {
-					// Data is always rounded up to 512
-					static const std::uint16_t PADDING_SIZE = 512;
-					auto quot = file_bytes / PADDING_SIZE;
-					if( _left % PADDING_SIZE ) {
-						++quot;
-					}
-					return static_cast<uint16_t>( quot * PADDING_SIZE - _left );
-				}();
-				// How much bytes are left to read
-				_left = file_bytes + _endPadding;
-			}
+			//FIXME: Make working without internal header
+			_left       = _header.ptr_begin->file_bytes;
+			_endPadding = [&]() {
+				// Data is always rounded up to 512
+				static const std::uint16_t PADDING_SIZE = 512;
+				auto quot = _left / PADDING_SIZE;
+				if( _left % PADDING_SIZE ) {
+					++quot;
+				}
+				return static_cast<uint16_t>( quot * PADDING_SIZE - _left );
+			}();
+			_left += _endPadding;
 
 			if( !continueAfterHeader )
 				return true;
@@ -193,16 +188,13 @@ internal::put( tar_stream& strm, bool continueAfterHeader ) {
 
 				return strm.len_out;
 			} else {
-				uInt movePadding = static_cast<decltype(_endPadding)>( _left );
-
-				if ( movePadding > strm.avail_in )
-					movePadding = strm.avail_in;
-
+				//if less available than full padding consume as much as possible
+				const uInt leftPadding = strm.avail_in < _left ? strm.avail_in : static_cast<decltype(_endPadding)>( _left );
 				// Consume the padding but do not generate output
 				strm.len_out    = 0;
-				strm.total_out += movePadding;
+				strm.total_out += leftPadding;
 
-				return movePadding;
+				return leftPadding;
 			}
 		}();
 

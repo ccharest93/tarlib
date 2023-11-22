@@ -34,7 +34,7 @@ namespace {
 					if( tar_headerIsDir( &header ) == TAR_TRUE ) {
 						if( mkdir( header.file_name, S_IRWXU) == -1 ) {
 							printf("e%s%d\n", header.file_name, errno);
-							assert( errno == EEXIST );
+							assert( errno == EXIST );
 						}
 					} else {
 						printf( "Creating %s\n", header.file_name );

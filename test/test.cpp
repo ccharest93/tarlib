@@ -4,7 +4,7 @@
  *  Created on: Feb 4, 2013
  *      Author: Andreas Bergmeier
  */
-
+#include <errno.h>
 #include <array>
 #include <cassert>
 #include <cstddef>
@@ -34,7 +34,7 @@ namespace {
 					if( tar_headerIsDir( &header ) == TAR_TRUE ) {
 						if( mkdir( header.file_name, S_IRWXU) == -1 ) {
 							printf("e%s%d\n", header.file_name, errno);
-							assert( errno == EXIST );
+							assert( errno == EEXIST );
 						}
 					} else {
 						printf( "Creating %s\n", header.file_name );
